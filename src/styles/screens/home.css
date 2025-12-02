@@ -1,0 +1,20 @@
+/* ===========================================
+   Home Screen - Estilos específicos
+   =========================================== */
+
+/* Los estilos del hero ya están en layout.css */
+
+/* Eyebrow y meta del resumen */
+.summary-eyebrow {
+  font-size: var(--font-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.summary-meta {
+  color: #c0c6dc;
+  font-weight: 500;
+  font-size: var(--font-base);
+}

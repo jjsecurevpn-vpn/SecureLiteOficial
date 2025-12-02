@@ -1,0 +1,69 @@
+/* ===========================================
+   Responsive - Media Queries
+   =========================================== */
+
+@media (max-width: 520px) {
+  .session-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .session-card__button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 450px) {
+  .phone {
+    height: 100vh;
+  }
+  .field.full {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 340px) {
+  :root {
+    --scale-factor: 0.8;
+    --header-padding: 30px;
+    --screen-top: 130px;
+    --top-strip-height: 130px;
+    --hero-top: 110px;
+  }
+  .fields {
+    grid-template-columns: 1fr;
+  }
+  .field.full {
+    grid-column: auto;
+  }
+  .quick-grid,
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 341px) and (max-width: 375px) {
+  :root {
+    --scale-factor: 0.9;
+  }
+}
+
+@media (min-width: 376px) and (max-width: 480px) {
+  :root {
+    --scale-factor: 1;
+  }
+}
+
+@media (min-width: 481px) {
+  :root {
+    --scale-factor: 1.1;
+  }
+  .server-card {
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .logo {
+    max-width: 520px;
+  }
+}

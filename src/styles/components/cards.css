@@ -1,0 +1,282 @@
+/* ===========================================
+   Cards - Tarjetas generales
+   =========================================== */
+
+/* ===========================================
+   Server Card
+   =========================================== */
+
+.server-card {
+  background: linear-gradient(180deg, var(--cardBg1), var(--cardBg2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+/* ===========================================
+   Location Card
+   =========================================== */
+
+.location-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #ffffff14, #ffffff0a);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.server-card .location-card {
+  margin: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #ffffff1a, #ffffff0a);
+}
+
+.loc-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.flag {
+  width: var(--flag-size);
+  height: var(--flag-size);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--font-base);
+  background: #0e1c3c;
+  box-shadow: inset 0 0 0 1px #ffffff1f;
+  overflow: hidden;
+}
+
+.flag img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Fallback cuando la imagen del servidor no carga */
+.flag-fallback {
+  font-size: calc(var(--flag-size) * 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.loc-name {
+  font-weight: 700;
+  font-size: var(--font-base);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.loc-ip {
+  font-size: var(--font-sm);
+  color: #9fb0d6;
+}
+
+/* ===========================================
+   Info Card
+   =========================================== */
+
+.info-card {
+  background: linear-gradient(180deg, #ffffff14, #ffffff05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-md) 0;
+  font-size: var(--font-base);
+}
+
+/* ===========================================
+   Session Card
+   =========================================== */
+
+.session-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.session-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-card__title {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  margin: 2px 0 4px;
+}
+
+.session-card__meta {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: #d6dcf1;
+}
+
+.session-card__button {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding-inline: var(--space-lg);
+}
+
+/* ===========================================
+   Stat Card
+   =========================================== */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(clamp(120px, calc(150px * var(--scale-factor)), 180px), 1fr)
+  );
+  gap: var(--space-md);
+}
+
+.stat-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  background: linear-gradient(180deg, #ffffff14, #ffffff03);
+}
+
+.stat-card small {
+  display: block;
+  font-size: var(--font-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: var(--space-xs);
+  font-size: var(--font-xl);
+}
+
+/* ===========================================
+   Account Card
+   =========================================== */
+
+.account-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.account-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  background: linear-gradient(180deg, #ffffff0d, #ffffff03);
+}
+
+.account-card.compact {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: #ffffff05;
+  border-color: #ffffff14;
+}
+
+.account-card .card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 700;
+  font-size: var(--font-base);
+  margin-bottom: var(--space-md);
+}
+
+.account-card.compact .card-head span {
+  font-size: var(--font-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.account-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.account-card li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-card.compact li {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.account-card.compact li:last-child {
+  border-bottom: none;
+}
+
+.account-card li span {
+  font-size: var(--font-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.account-card.compact li span {
+  font-size: var(--font-xs);
+}
+
+.account-card li strong {
+  font-size: var(--font-md);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.account-card.compact li strong {
+  font-size: var(--font-base);
+}
+
+/* ===========================================
+   Term Card
+   =========================================== */
+
+.term-card {
+  padding: var(--space-xl);
+  margin-bottom: var(--space-md);
+}
+
+.terms-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted) transparent;
+}
+
+.terms-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terms-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--muted);
+  border-radius: 10px;
+}

@@ -1,0 +1,57 @@
+/* ===========================================
+   Variables CSS - Tokens de diseño
+   =========================================== */
+
+:root {
+  /* Colores base */
+  --bg-1: #15161a;
+  --bg-2: #24262d;
+  --muted: #95a0b7;
+  --text: #e9ecf8;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #6ea7ff;
+  --cardBg1: rgba(255, 255, 255, 0.08);
+  --cardBg2: rgba(255, 255, 255, 0.03);
+
+  /* Factor de escala responsivo */
+  --scale-factor: clamp(0.82, calc(0.6 + 0.1vw), 1.15);
+
+  /* Espaciado */
+  --space-xs: clamp(4px, calc(6px * var(--scale-factor)), 8px);
+  --space-sm: clamp(6px, calc(8px * var(--scale-factor)), 12px);
+  --space-md: clamp(8px, calc(12px * var(--scale-factor)), 16px);
+  --space-lg: clamp(10px, calc(14px * var(--scale-factor)), 20px);
+  --space-xl: clamp(12px, calc(16px * var(--scale-factor)), 24px);
+
+  /* Tipografía */
+  --font-xs: clamp(10px, calc(11px * var(--scale-factor)), 13px);
+  --font-sm: clamp(11px, calc(12px * var(--scale-factor)), 14px);
+  --font-base: clamp(12px, calc(14px * var(--scale-factor)), 16px);
+  --font-md: clamp(14px, calc(16px * var(--scale-factor)), 20px);
+  --font-lg: clamp(16px, calc(18px * var(--scale-factor)), 24px);
+  --font-xl: clamp(18px, calc(20px * var(--scale-factor)), 28px);
+  --font-2xl: clamp(20px, calc(24px * var(--scale-factor)), 32px);
+
+  /* Border radius */
+  --radius-sm: clamp(8px, calc(10px * var(--scale-factor)), 14px);
+  --radius-md: clamp(10px, calc(12px * var(--scale-factor)), 16px);
+  --radius-lg: clamp(12px, calc(14px * var(--scale-factor)), 18px);
+  --radius-xl: clamp(16px, calc(20px * var(--scale-factor)), 26px);
+
+  /* Componentes */
+  --btn-height: clamp(32px, calc(36px * var(--scale-factor)), 44px);
+  --input-height: clamp(32px, calc(36px * var(--scale-factor)), 44px);
+  --icon-size: clamp(20px, calc(24px * var(--scale-factor)), 32px);
+  --flag-size: clamp(22px, calc(26px * var(--scale-factor)), 32px);
+
+  /* Toggle */
+  --toggle-width: clamp(40px, calc(48px * var(--scale-factor)), 56px);
+  --toggle-height: clamp(28px, calc(33px * var(--scale-factor)), 40px);
+  --thumb-size: clamp(22px, calc(25px * var(--scale-factor)), 32px);
+
+  /* Layout */
+  --header-padding: clamp(35px, calc(45px * var(--scale-factor)), 55px);
+  --screen-top: clamp(140px, calc(170px * var(--scale-factor)), 200px);
+  --top-strip-height: clamp(140px, calc(170px * var(--scale-factor)), 200px);
+  --hero-top: clamp(120px, calc(145px * var(--scale-factor)), 170px);
+}

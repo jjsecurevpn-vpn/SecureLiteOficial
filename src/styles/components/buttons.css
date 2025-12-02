@@ -1,0 +1,134 @@
+/* ===========================================
+   Buttons - Botones y toggles
+   =========================================== */
+
+.btn {
+  appearance: none;
+  font-weight: 700;
+  font-size: var(--font-base);
+  color: var(--text);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #ffffff1a, #ffffff0a);
+  padding: var(--space-md) var(--space-lg);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn.primary {
+  border-color: #6ea7ff80;
+  box-shadow: 0 0 #6ea7ff14;
+  width: 100%;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: #ffffff14;
+  border: 1px solid var(--border);
+}
+
+.connect-row .btn.primary {
+  flex: 1;
+  min-width: 0;
+}
+
+.connect-row .toggle {
+  margin-left: var(--space-sm);
+  flex: 0 0 auto;
+}
+
+.btn.soft {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  background: linear-gradient(180deg, #ffffff14, #ffffff08);
+  font-weight: 600;
+}
+
+.btn.soft i {
+  margin-right: var(--space-sm);
+}
+
+/* ===========================================
+   Quick Buttons Grid
+   =========================================== */
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.qbtn {
+  position: relative;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  background: linear-gradient(180deg, #ffffff0f, #ffffff05);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--font-base);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qbtn i {
+  margin-right: var(--space-sm);
+  opacity: 0.95;
+}
+
+/* ===========================================
+   Toggle Switch
+   =========================================== */
+
+.toggle {
+  position: relative;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  border-radius: 999px;
+  background: #44506e;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: inline-block;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle input {
+  display: none;
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: var(--thumb-size);
+  height: calc(var(--thumb-size) + 2px);
+  border-radius: 50%;
+  background: #dbe6ff;
+  transition: left 0.2s ease;
+}
+
+.toggle input:checked + .thumb {
+  left: calc(var(--toggle-width) - var(--thumb-size) - 4px);
+  background: #9fe8c0;
+  box-shadow: 0 0 0 3px #39d98a2e;
+}
+
+/* ===========================================
+   Clear Button
+   =========================================== */
+
+.clear-btn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.clear-btn:hover {
+  color: var(--text);
+}

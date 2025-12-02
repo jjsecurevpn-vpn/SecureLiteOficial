@@ -1,0 +1,38 @@
+/* ===========================================
+   Error Boundary
+   =========================================== */
+
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-xl);
+  background: var(--bg-1);
+}
+
+.error-content {
+  text-align: center;
+  max-width: clamp(280px, calc(320px * var(--scale-factor)), 400px);
+}
+
+.error-content i {
+  font-size: clamp(36px, calc(48px * var(--scale-factor)), 64px);
+  color: #ef6573;
+  margin-bottom: var(--space-xl);
+}
+
+.error-content h2 {
+  margin: 0 0 var(--space-sm);
+  color: var(--text);
+  font-size: var(--font-lg);
+}
+
+.error-content p {
+  margin: 0 0 var(--space-xl);
+  font-size: var(--font-base);
+}
+
+.error-content .btn {
+  min-width: clamp(120px, calc(140px * var(--scale-factor)), 180px);
+}

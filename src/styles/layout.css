@@ -1,0 +1,173 @@
+/* ===========================================
+   Layout - Estructura principal de la app
+   =========================================== */
+
+.phone {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #24262d, #09090a);
+  box-shadow: 0 20px 40px #00000073, inset 0 1px #ffffff0d;
+}
+
+/* ===========================================
+   Top Strip - Barra superior con estados
+   =========================================== */
+
+.top-strip {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--top-strip-height);
+  z-index: 0;
+  pointer-events: none;
+  transition: background 0.25s ease;
+}
+
+.state-disconnected .top-strip {
+  background: linear-gradient(
+    180deg,
+    #ef6573f2,
+    #ef65738c 40%,
+    #ef657300
+  );
+}
+
+.state-connecting .top-strip {
+  background: linear-gradient(
+    180deg,
+    #9ea4b2f2,
+    #9ea4b273 40%,
+    #9ea4b200
+  );
+}
+
+.state-connected .top-strip {
+  background: linear-gradient(
+    180deg,
+    #39d98af2,
+    #39d98a73 40%,
+    #39d98a00
+  );
+}
+
+/* ===========================================
+   Header / Topbar
+   =========================================== */
+
+header.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--header-padding) var(--space-xl);
+  position: relative;
+  z-index: 2;
+}
+
+.hotzone {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.dots {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    clamp(6px, calc(8px * var(--scale-factor)), 10px)
+  );
+  grid-auto-rows: clamp(6px, calc(8px * var(--scale-factor)), 10px);
+  gap: clamp(4px, calc(5px * var(--scale-factor)), 7px);
+  cursor: pointer;
+}
+
+.dots span {
+  width: clamp(6px, calc(8px * var(--scale-factor)), 10px);
+  height: clamp(6px, calc(8px * var(--scale-factor)), 10px);
+  border-radius: 2px;
+  background: #fff6;
+}
+
+/* ===========================================
+   Hero Section
+   =========================================== */
+
+.hero {
+  position: absolute;
+  top: var(--hero-top);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+  z-index: 1;
+}
+
+.hero .hero-lock--connected {
+  color: #39d98a;
+}
+
+.hero .title {
+  font-weight: 700;
+  font-size: var(--font-lg);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* ===========================================
+   Screen Container
+   =========================================== */
+
+.screen {
+  position: absolute;
+  inset: var(--screen-top) 0 0;
+  padding: var(--space-xl) var(--space-lg);
+  overflow: auto;
+  z-index: 1;
+}
+
+/* ===========================================
+   Logo
+   =========================================== */
+
+.logo-container {
+  text-align: center;
+}
+
+.logo {
+  width: 100%;
+  max-width: clamp(350px, calc(488px * var(--scale-factor)), 550px);
+  height: auto;
+  max-height: clamp(80px, calc(113px * var(--scale-factor)), 140px);
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Fallback elegante cuando el logo no carga */
+.logo-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  min-height: clamp(60px, calc(80px * var(--scale-factor)), 100px);
+}
+
+.logo-fallback .logo-icon {
+  font-size: clamp(32px, calc(48px * var(--scale-factor)), 56px);
+  filter: drop-shadow(0 2px 8px rgba(0, 200, 150, 0.3));
+}
+
+.logo-fallback .logo-text {
+  font-size: clamp(18px, calc(24px * var(--scale-factor)), 28px);
+  font-weight: 700;
+  background: linear-gradient(135deg, #00c896, #00b4d8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
