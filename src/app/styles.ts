@@ -12,6 +12,7 @@ import '../styles/components/applogs.css';
 import '../styles/components/toast.css';
 import '../styles/components/premium.css';
 import '../styles/components/error-boundary.css';
+import '../styles/components/modal.css';
 import '../styles/screens/home.css';
 import '../styles/screens/account.css';
 import '../styles/screens/terms.css';

@@ -16,6 +16,31 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent-15);
+  border-color: var(--accent-40);
+}
+
+/* Más contraste para botones en la cabecera (back/menu) cuando reciben foco */
+header.topbar .btn.hotzone:focus,
+header.topbar .btn.hotzone:focus-visible,
+.hotzone:focus,
+.hotzone:focus-visible {
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  color: var(--on-accent);
+  transform: translateZ(0) scale(1.03);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.32), 0 0 0 6px rgba(0,0,0,0.08), 0 0 0 4px rgba(255,255,255,0.06) inset;
+  border-color: rgba(255,255,255,0.12);
+  outline: none;
+}
+
+/* foco más visible para botones primarios (alto contraste sobre fondo acentuado) */
+.btn.primary:focus-visible,
+.btn.primary.danger:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.95), 0 0 0 6px rgba(0,0,0,0.12);
+  border-color: var(--on-accent);
+}
+
 .btn.primary {
   border-color: var(--accent-40);
   box-shadow: var(--shadow-accent);
@@ -82,6 +107,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.qbtn:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent-15);
+  border-color: var(--accent-40);
+}
+
 .qbtn i {
   margin-right: var(--space-sm);
   opacity: 0.95;
@@ -105,7 +135,19 @@
 }
 
 .toggle input {
-  display: none;
+  /* keep the native input focusable but visually hidden */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.toggle:focus-within {
+  box-shadow: 0 0 0 3px var(--accent-15);
+  border-color: var(--accent-40);
 }
 
 .thumb {

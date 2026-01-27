@@ -15,17 +15,53 @@ export function useServers() {
       const raw = dt.call<string>('DtGetConfigs');
 
       if (!raw || raw === '[]' || raw === '') {
-        appLogger.add('warn', '⚠️ DtGetConfigs devolvió lista vacía o null');
-        setCategorias([]);
+        appLogger.add('warn', '⚠️ DtGetConfigs devolvió lista vacía o null — usando MOCK');
+        const mock: Category[] = [
+          {
+            name: 'MOCK A',
+            sorter: 10,
+            items: [
+              { id: 'mock-a-1', name: 'Mock Server A1', description: '127.0.0.1', mode: 'udp', ip: '127.0.0.1', sorter: 1 },
+              { id: 'mock-a-2', name: 'Mock Server A2', description: '127.0.0.2', mode: 'udp', ip: '127.0.0.2', sorter: 2 },
+            ],
+          },
+          {
+            name: 'MOCK B',
+            sorter: 20,
+            items: [
+              { id: 'mock-b-1', name: 'Mock Server B1', description: '10.0.0.1', mode: 'tcp', ip: '10.0.0.1', sorter: 1 },
+              { id: 'mock-b-2', name: 'Mock Server B2', description: '10.0.0.2', mode: 'tcp', ip: '10.0.0.2', sorter: 2 },
+            ],
+          },
+        ];
+        setCategorias(mock);
         return;
       }
 
       let cats: Category[];
       try {
         cats = JSON.parse(raw) as Category[];
-      } catch {
-        appLogger.add('error', '❌ Error parseando DtGetConfigs');
-        setCategorias([]);
+      } catch (err) {
+        appLogger.add('error', '❌ Error parseando DtGetConfigs — usando MOCK');
+        const mock: Category[] = [
+          {
+            name: 'MOCK A',
+            sorter: 10,
+            items: [
+              { id: 'mock-a-1', name: 'Mock Server A1', description: '127.0.0.1', mode: 'udp', ip: '127.0.0.1', sorter: 1 },
+              { id: 'mock-a-2', name: 'Mock Server A2', description: '127.0.0.2', mode: 'udp', ip: '127.0.0.2', sorter: 2 },
+            ],
+          },
+          {
+            name: 'MOCK B',
+            sorter: 20,
+            items: [
+              { id: 'mock-b-1', name: 'Mock Server B1', description: '10.0.0.1', mode: 'tcp', ip: '10.0.0.1', sorter: 1 },
+              { id: 'mock-b-2', name: 'Mock Server B2', description: '10.0.0.2', mode: 'tcp', ip: '10.0.0.2', sorter: 2 },
+            ],
+          },
+        ];
+        setCategorias(mock);
         return;
       }
 

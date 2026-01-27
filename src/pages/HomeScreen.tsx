@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useVpn } from '../features/vpn/model/VpnContext';
 import { useToastContext } from '../shared/toast/ToastContext';
 import { useConnectionStatus } from '../features/vpn/model/useConnectionStatus';
@@ -11,6 +11,7 @@ import { CredentialFields } from '../shared/ui/CredentialFields';
 import { Toggle } from '../shared/ui/Toggle';
 import { Button } from '../shared/ui/Button';
 import { SessionDetails } from '../shared/components/SessionDetails';
+import keyboardNavigationManager from '../shared/utils/keyboardNavigationManager';
 // Nota: stats en tiempo real se muestran a nivel de categorías (ServersScreen)
 
 export function HomeScreen() {
@@ -97,6 +98,64 @@ export function HomeScreen() {
 
   const [logoError, setLogoError] = useState(false);
 
+  // Activar navigation manager automáticamente al primer evento de teclado/remote en Home
+  useEffect(() => {
+    const onFirstKey = (e: KeyboardEvent) => {
+      const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Enter', ' '];
+      if (keys.includes(e.key)) {
+        if (!keyboardNavigationManager.enabled) {
+          keyboardNavigationManager.enable('.home-main', { includeFormControls: true });
+        }
+      }
+    };
+    window.addEventListener('keydown', onFirstKey);
+    return () => window.removeEventListener('keydown', onFirstKey);
+  }, []);
+
+  // Ensure focus returns to the server card when arriving at Home
+  useEffect(() => {
+    let mounted = true;
+    const maxAttempts = 6;
+    let attempt = 0;
+    const timers: number[] = [];
+
+    const tryFocus = () => {
+      if (!mounted) return true;
+      try {
+        const el = document.querySelector<HTMLElement>('.home-main .location-card');
+        if (el) {
+          try {
+            el.focus();
+          } catch {}
+          try {
+            // ensure manager is enabled for keyboard navigation
+            keyboardNavigationManager.enable('.home-main', { includeFormControls: true });
+          } catch {}
+          return true;
+        }
+      } catch (err) {
+        // ignore
+      }
+      return false;
+    };
+
+    const schedule = () => {
+      const ok = tryFocus();
+      attempt++;
+      if (!ok && attempt < maxAttempts) {
+        const t = window.setTimeout(schedule, 40 * attempt);
+        timers.push(t);
+      }
+    };
+
+    timers.push(window.setTimeout(schedule, 20));
+
+    return () => {
+      mounted = false;
+      timers.forEach((t) => window.clearTimeout(t));
+    };
+  }, []);
+
   return (
     <section className="screen home-screen" style={sectionStyle}>
       <div className="home-main">
@@ -144,7 +203,7 @@ export function HomeScreen() {
             {isConnected && <SessionDetails />}
 
             <div className="row connect-row">
-              <Button variant="primary" onClick={handleConnect} className={isConnected ? 'danger' : ''}>
+              <Button variant="primary" onClick={handleConnect} className={isConnected ? 'danger' : ''} data-nav>
                 {buttonText}
               </Button>
               <Toggle
@@ -155,10 +214,10 @@ export function HomeScreen() {
             </div>
 
             <div className="quick-grid">
-              <Button variant="quick" onClick={handleUpdate}>
+              <Button variant="quick" onClick={handleUpdate} data-nav>
                 <i className="fa fa-rotate" />Actualizar
               </Button>
-              <Button variant="quick" onClick={handleLogs}>
+              <Button variant="quick" onClick={handleLogs} data-nav>
                 <i className="fa fa-terminal" />{UI_MESSAGES.buttons.logs}
               </Button>
             </div>

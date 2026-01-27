@@ -39,7 +39,16 @@ export const ServerCard = memo(function ServerCard({ config, onClick, disabled }
       onClick={disabled ? undefined : onClick}
       style={{ cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1 }}
       role="button"
+      tabIndex={disabled ? -1 : 0}
+      data-nav
       aria-label={UI_MESSAGES.serverCard.ariaChooseServer}
+      onKeyDown={(e) => {
+        if (disabled) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <div className="loc-left">
         <div className="flag">

@@ -127,6 +127,51 @@ header.topbar .row {
   transform: scale(0.96);
 }
 
+.coupon-btn {
+  color: var(--text-strong-35);
+  position: relative;
+}
+
+.coupon-btn i {
+  color: var(--text-strong-35);
+}
+
+.coupon-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-1);
+}
+
+/* Small attention marker for single-coupon highlight */
+.coupon-attention {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  z-index: 5;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
 /* ===========================================
    Hero Section
    =========================================== */

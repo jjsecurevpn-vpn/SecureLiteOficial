@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useVpn } from '../features/vpn/model/VpnContext';
 import { useToastContext } from '../shared/toast/ToastContext';
 import { useSectionStyle } from '../shared/hooks/useSectionStyle';
@@ -8,6 +8,8 @@ import { UI_MESSAGES } from '../constants';
 import { dt } from '../features/vpn/api/vpnBridge';
 import { appLogger } from '../features/logs/model/useAppLogs';
 import { useServerStats } from '../shared/hooks/useServerStats';
+import { useKeyboardNavigation } from '../shared/hooks/useKeyboardNavigation';
+import keyboardNavigationManager from '../shared/utils/keyboardNavigationManager';
 import type { Category, ServerConfig } from '../shared/types';
 
 const SUBCATEGORY_KEYWORDS = [
@@ -57,17 +59,217 @@ export function ServersScreen() {
   const { showToast } = useToastContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>(ALL_SUBCATEGORIES);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const sectionStyle = useSectionStyle();
 
   const { serversByName } = useServerStats({ pollMs: 3_000, enabled: true });
 
+  const toggleExpand = useCallback((catName: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(catName)) {
+        newSet.delete(catName);
+      } else {
+        newSet.add(catName);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const serversContentRef = useRef<HTMLDivElement | null>(null);
+  useKeyboardNavigation(serversContentRef);
+  
+
+  // Al abrir una categoría, enfocar el primer elemento interactivo dentro del área
   useEffect(() => {
-    loadCategorias();
-  }, [loadCategorias]);
+    if (!selectedCategory) return;
+    const root = serversContentRef.current;
+    if (!root) return;
+    const selector = 'button, [role="button"], a, [tabindex]:not([tabindex="-1"])';
+    // Pequeño delay para asegurar que el DOM esté renderizado
+    const t = window.setTimeout(() => {
+      const items = Array.from(root.querySelectorAll<HTMLElement>(selector)).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+      if (items.length) items[0].focus();
+    }, 40);
+    return () => window.clearTimeout(t);
+  }, [selectedCategory]);
+
+  // Focus search input only when user explicitly presses Enter while on category list
+  useEffect(() => {
+    if (selectedCategory) return;
+    const root = serversContentRef.current;
+    if (!root) return;
+
+
+    // When we focus the search input via Enter, mark it as exitable so navigation keys can move out
+    const onEnterWithExitable = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      const input = root.querySelector<HTMLInputElement>('.search-field input[data-nav]');
+      if (!input) return;
+      input.focus();
+      input.setAttribute('data-exitable', '1');
+      const onBlur = () => {
+        input.removeAttribute('data-exitable');
+        input.removeEventListener('blur', onBlur);
+      };
+      input.addEventListener('blur', onBlur);
+    };
+
+    window.addEventListener('keydown', onEnterWithExitable);
+    return () => window.removeEventListener('keydown', onEnterWithExitable);
+  }, [selectedCategory]);
 
   useEffect(() => {
     setSubcategoryFilter(ALL_SUBCATEGORIES);
     setSearchTerm('');
+  }, [selectedCategory]);
+
+  // Activar navigation manager automáticamente al primer evento de teclado/remote
+  useEffect(() => {
+    const onFirstKey = (e: KeyboardEvent) => {
+      const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Enter', ' '];
+      if (keys.includes(e.key)) {
+        if (!keyboardNavigationManager.enabled) {
+          keyboardNavigationManager.enable('.servers-content', { includeFormControls: true });
+        }
+      }
+    };
+    window.addEventListener('keydown', onFirstKey);
+    return () => window.removeEventListener('keydown', onFirstKey);
+  }, []);
+
+  // Simple local handler to navigate vertically between category cards when viewing categories list
+  useEffect(() => {
+    if (selectedCategory) return;
+    const root = serversContentRef.current;
+    if (!root) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'ArrowLeft') return;
+      const active = document.activeElement as HTMLElement | null;
+      if (!active) return;
+
+      // Find ancestor category-card of active (or if active is category-card__main)
+      let node: HTMLElement | null = active;
+      while (node && !node.classList?.contains('category-card')) {
+        node = node.parentElement as HTMLElement | null;
+      }
+      if (!node) return;
+
+      const cats = Array.from(root.querySelectorAll<HTMLElement>('.category-card')).filter(el => el.offsetParent !== null && !el.hasAttribute('disabled'));
+      if (!cats.length) return;
+      const idx = cats.indexOf(node);
+      if (idx === -1) return;
+
+      if (e.key === 'ArrowDown') {
+        const next = cats[Math.min(cats.length - 1, idx + 1)];
+        if (next) {
+          next.focus();
+          e.preventDefault();
+        }
+      } else if (e.key === 'ArrowUp') {
+        const prev = cats[Math.max(0, idx - 1)];
+        if (prev) {
+          prev.focus();
+          e.preventDefault();
+        }
+      } else if (e.key === 'ArrowLeft') {
+        // focus header/back on left arrow
+        const sel = ['header.topbar [data-nav]', 'header.topbar button.btn.hotzone', 'header.topbar .btn.hotzone', 'header.topbar .hotzone'].join(',');
+        const back = document.querySelector<HTMLElement>(sel);
+        if (back) {
+          try { back.setAttribute('tabindex', '0'); back.setAttribute('data-nav', '1'); } catch {}
+          setTimeout(() => { try { back.focus(); } catch {} }, 0);
+          e.preventDefault();
+        }
+      }
+    };
+
+    root.addEventListener('keydown', onKey);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      root.removeEventListener('keydown', onKey);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [selectedCategory]);
+
+  // Local grid navigation for server items when a category is open
+  useEffect(() => {
+    if (!selectedCategory) return;
+    const root = serversContentRef.current;
+    if (!root) return;
+
+    const selector = '.server-grid .server-item';
+
+    const getItems = () => Array.from(root.querySelectorAll<HTMLElement>(selector)).filter(el => !el.hasAttribute('disabled') && (el.offsetParent !== null || el.getClientRects().length > 0));
+
+    const getCenter = (r: DOMRect) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+
+    const buildGrid = (items: HTMLElement[]) => {
+      const nodes = items.map((el, i) => {
+        const rect = el.getBoundingClientRect();
+        const c = getCenter(rect);
+        return { el, rect, c, i };
+      });
+      nodes.sort((a, b) => a.c.y - b.c.y || a.c.x - b.c.x);
+      const rows: Array<typeof nodes> = [];
+      for (const node of nodes) {
+        const last = rows[rows.length - 1];
+        if (!last) { rows.push([node]); continue; }
+        const avgHeight = last.reduce((s, n) => s + n.rect.height, 0) / last.length || node.rect.height;
+        const tol = Math.max(12, avgHeight * 0.5);
+        const lastY = last.reduce((s, n) => s + n.c.y, 0) / last.length;
+        if (Math.abs(node.c.y - lastY) <= tol) last.push(node); else rows.push([node]);
+      }
+      const grid = rows.map(r => r.sort((a, b) => a.c.x - b.c.x));
+      const indexMap = new Map<number, { row: number; col: number }>();
+      grid.forEach((row, ri) => row.forEach((n, ci) => indexMap.set(n.i, { row: ri, col: ci })));
+      return { grid, indexMap };
+    };
+
+    const findNearestInRowByX = (row: Array<{ c: { x: number } }>, x: number) => {
+      let best = 0; let bestDist = Infinity;
+      row.forEach((n, i) => { const d = Math.abs(n.c.x - x); if (d < bestDist) { bestDist = d; best = i; } });
+      return best;
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (!['ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+      const items = getItems(); if (!items.length) return;
+      const active = document.activeElement as HTMLElement | null;
+      const activeIdx = active ? items.indexOf(active) : -1;
+      // Build grid
+      const { grid, indexMap } = buildGrid(items);
+      if (activeIdx < 0) { const first = grid[0]?.[0]?.el; if (first) { first.focus(); e.preventDefault(); } return; }
+      const pos = indexMap.get(activeIdx);
+      if (!pos) return;
+      const { row: r, col: c } = pos;
+      let target: { row: number; col: number } | null = null;
+      if (e.key === 'ArrowDown') {
+        const nextRow = Math.min(grid.length - 1, r + 1);
+        if (nextRow !== r) { const desiredX = grid[r][c].c.x; const colInNext = findNearestInRowByX(grid[nextRow], desiredX); target = { row: nextRow, col: colInNext }; }
+      } else if (e.key === 'ArrowUp') {
+        const prevRow = Math.max(0, r - 1);
+        if (prevRow !== r) { const desiredX = grid[r][c].c.x; const colInPrev = findNearestInRowByX(grid[prevRow], desiredX); target = { row: prevRow, col: colInPrev }; }
+      } else if (e.key === 'ArrowLeft') {
+        // Focus header/back from within grid
+        const sel = ['header.topbar [data-nav]', 'header.topbar button.btn.hotzone', 'header.topbar .btn.hotzone', 'header.topbar .hotzone'].join(',');
+        const back = document.querySelector<HTMLElement>(sel);
+        if (back) {
+          try { back.setAttribute('tabindex', '0'); back.setAttribute('data-nav', '1'); } catch {}
+          setTimeout(() => { try { back.focus(); } catch {} }, 0);
+          return;
+        }
+      }
+      if (target) {
+        const el = grid[target.row]?.[target.col]?.el;
+        if (el) { el.focus(); e.preventDefault(); }
+      }
+    };
+
+    window.addEventListener('keydown', onKey);
+    root.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); root.removeEventListener('keydown', onKey); };
   }, [selectedCategory]);
 
   const filteredCategories = useMemo(() => {
@@ -115,7 +317,7 @@ export function ServersScreen() {
   const handleServerClick = useCallback((srv: ServerConfig, cat: Category) => {
     if (autoMode) {
       startAutoConnect(cat);
-      showToast(UI_MESSAGES.auto.testing(cat.name || UI_MESSAGES.auto.categoryFallback));
+      showToast(UI_MESSAGES.auto.testing(cat.name || UI_MESSAGES.auto.categoryFallback), document.activeElement as HTMLElement);
       return;
     }
 
@@ -134,7 +336,7 @@ export function ServersScreen() {
 
       setConfig(srv);
       setScreen('home');
-      showToast(UI_MESSAGES.status.connectingTo(srv.name || UI_MESSAGES.servers.inUse));
+      showToast(UI_MESSAGES.status.connectingTo(srv.name || UI_MESSAGES.servers.inUse), document.activeElement as HTMLElement);
 
       // Esperar un poco para que el stop se procese en DTunnel
       window.setTimeout(() => {
@@ -145,7 +347,7 @@ export function ServersScreen() {
 
     setConfig(srv);
     setScreen('home');
-    showToast(UI_MESSAGES.connection.serverSelected);
+    showToast(UI_MESSAGES.connection.serverSelected, document.activeElement as HTMLElement);
   }, [autoMode, startAutoConnect, showToast, status, creds.user, creds.pass, creds.uuid, cancelConnecting, disconnect, setConfig, setScreen]);
 
   const handleClearSearch = useCallback(() => {
@@ -238,7 +440,7 @@ export function ServersScreen() {
 
       </div>
 
-      <div className="servers-content">
+      <div className="servers-content" ref={serversContentRef}>
         {!selectedCategory && (
           <div className="category-toolbar">
             <div className="search-field">
@@ -248,6 +450,7 @@ export function ServersScreen() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={UI_MESSAGES.servers.searchPlaceholder}
+                data-nav
               />
               {searchTerm && (
                 <button type="button" className="clear-btn" onClick={handleClearSearch} aria-label={UI_MESSAGES.servers.clearSearchAria}>
@@ -259,6 +462,7 @@ export function ServersScreen() {
               <button 
                 type="button" 
                 className="config-btn" 
+                data-nav
                 onClick={handleOpenNativeDialog}
                 title={UI_MESSAGES.servers.openConfiguratorTitle}
               >
@@ -306,35 +510,83 @@ export function ServersScreen() {
                     `${cat.name || ''} ${first?.name || ''} ${first?.description || ''}`.trim()
                   );
                   return (
-                  <button
-                    key={cat.name}
-                    type="button"
-                    className={`category-card ${hasSelectedServer ? 'selected' : ''}`}
-                    onClick={() => handleCategoryClick(cat)}
-                  >
-                    <div className="category-card__header">
-                      <div>
-                        <p className="category-card__title">{cat.name}</p>
-                        <small className="muted">{UI_MESSAGES.servers.serverCount(cat.items.length)}</small>
+                  <div className={`category-card ${hasSelectedServer ? 'selected' : ''}`}>
+                    <button
+                      type="button"
+                      className="category-card__main"
+                      data-nav
+                      onClick={() => handleCategoryClick(cat)}
+                    >
+                      <div className="category-card__header">
+                        <div>
+                          <p className="category-card__title">{cat.name}</p>
+                          <small className="muted">{UI_MESSAGES.servers.serverCount(cat.items.length)}</small>
+                        </div>
+                        <span className="badge-count" title="Usuarios conectados">
+                            <i className="fas fa-users" aria-hidden="true" />
+                            {live?.connectedUsers ?? '-'}
+                            <span className="badge-count-label" aria-hidden="true">ONLINE</span>
+                          </span>
                       </div>
-                      <span className="badge-count" title="Usuarios conectados">
-                        <i className="fas fa-users" aria-hidden="true" />
-                        {live?.connectedUsers ?? '-'}
-                      </span>
-                    </div>
-                    <div className="category-card__body">
-                      <span className="category-card__label">{UI_MESSAGES.servers.subcategories}</span>
-                      <div className="category-pills">
-                        {Array.from(new Set(cat.items.map((srv) => resolveSubcategory(srv.name)))).slice(0, 4).map((label) => (
-                          <span key={label} className="pill">{label}</span>
-                        ))}
+                      <div className="category-card__body">
+                        <span className="category-card__label">{UI_MESSAGES.servers.subcategories}</span>
+                        <div className="category-pills">
+                          {Array.from(new Set(cat.items.map((srv) => resolveSubcategory(srv.name)))).slice(0, 4).map((label) => (
+                            <span key={label} className="pill">{label}</span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className="category-card__footer">
-                      <span>{autoMode ? UI_MESSAGES.servers.autoTest : UI_MESSAGES.servers.manualSelect}</span>
-                      <i className="fas fa-chevron-right" aria-hidden="true" />
-                    </div>
-                  </button>
+                      <div className="category-card__footer">
+                        <span>{autoMode ? UI_MESSAGES.servers.autoTest : UI_MESSAGES.servers.manualSelect}</span>
+                        <button
+                          type="button"
+                          className="expand-btn"
+                          onClick={(e) => { e.stopPropagation(); toggleExpand(cat.name); }}
+                          aria-label={expandedCategories.has(cat.name) ? 'Contraer detalles' : 'Expandir detalles'}
+                        >
+                          <i className={`fas fa-chevron-${expandedCategories.has(cat.name) ? 'up' : 'down'}`} aria-hidden="true" />
+                        </button>
+                      </div>
+                    </button>
+                    {expandedCategories.has(cat.name) && live && (
+                      <div className="category-card__expanded">
+                        <div className="stats-grid">
+                          <div className="stat-item">
+                            <i className="fas fa-microchip" aria-hidden="true" />
+                            <span>CPU: {live.cpuUsage !== undefined ? `${live.cpuUsage.toFixed(1)}%` : '-'}</span>
+                          </div>
+                          <div className="stat-item">
+                            <i className="fas fa-memory" aria-hidden="true" />
+                            <span>RAM: {live.memoryUsage !== undefined ? `${live.memoryUsage.toFixed(1)}%` : '-'}</span>
+                          </div>
+                          {live.cpuCores && (
+                            <div className="stat-item">
+                              <i className="fas fa-server" aria-hidden="true" />
+                              <span>Cores: {live.cpuCores}</span>
+                            </div>
+                          )}
+                          {live.totalMemoryGb && (
+                            <div className="stat-item">
+                              <i className="fas fa-database" aria-hidden="true" />
+                              <span>RAM Total: {live.totalMemoryGb} GB</span>
+                            </div>
+                          )}
+                          {live.netRecvMbps !== undefined && (
+                            <div className="stat-item">
+                              <i className="fas fa-download" aria-hidden="true" />
+                              <span>↓ {live.netRecvMbps.toFixed(1)} Mbps</span>
+                            </div>
+                          )}
+                          {live.netSentMbps !== undefined && (
+                            <div className="stat-item">
+                              <i className="fas fa-upload" aria-hidden="true" />
+                              <span>↑ {live.netSentMbps.toFixed(1)} Mbps</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
                 })
               )}
@@ -365,6 +617,8 @@ export function ServersScreen() {
                           type="button"
                           className={`server-item ${isActive ? 'selected' : ''}`}
                           onClick={() => handleServerClick(srv, selectedCategory)}
+                          // data-nav attribute allows the navigation hook to find items
+                          data-nav
                         >
                           <div className="server-item__header">
                             <div>

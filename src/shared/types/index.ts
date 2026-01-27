@@ -76,11 +76,10 @@ export interface ServerRealtimeStat {
 }
 
 export interface ServersStatsResponse {
-  servidores: ServerRealtimeStat[];
-  totalUsuarios: number;
-  servidoresOnline: number;
-  onlineServers?: number;
-  ultimaActualizacion?: string;
+  fetchedAt: string;
+  totalUsers: number;
+  onlineServers: number;
+  servers: ServerRealtimeStat[];
 }
 
 // Nota: se importan tipos nativos desde './native' directamente cuando se necesitan.

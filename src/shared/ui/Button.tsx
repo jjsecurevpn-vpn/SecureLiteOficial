@@ -1,14 +1,12 @@
-import { memo, type ReactNode } from 'react';
+import { memo, type ReactNode, type ButtonHTMLAttributes } from 'react';
 
-interface ButtonProps {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  onClick?: () => void;
   variant?: 'default' | 'primary' | 'soft' | 'quick';
   className?: string;
-  disabled?: boolean;
 }
 
-export const Button = memo(function Button({ children, onClick, variant = 'default', className = '', disabled }: ButtonProps) {
+export const Button = memo(function Button({ children, variant = 'default', className = '', disabled, ...props }: ButtonProps) {
   const variantClass = {
     default: 'btn',
     primary: 'btn primary',
@@ -19,8 +17,8 @@ export const Button = memo(function Button({ children, onClick, variant = 'defau
   return (
     <button
       className={`${variantClass} ${className}`}
-      onClick={onClick}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ServersStatsResponse } from '../types';
 
-const DEFAULT_STATS_URL = 'https://shop.jhservices.com.ar/api/stats/servidores';
+const DEFAULT_STATS_URL = 'https://shop.jhservices.com.ar/api/realtime/snapshot';
 
 export type UseServerStatsOptions = {
   url?: string;
@@ -52,10 +52,10 @@ export function useServerStats(options: UseServerStatsOptions = {}) {
           return;
         }
 
-        const json = (await response.json()) as ServersStatsResponse;
+        const json = (await response.json()) as any;
         if (cancelled) return;
 
-        if (!json || !Array.isArray(json.servidores)) {
+        if (!json || !json.success || !json.data || !json.data.serverStats || !Array.isArray(json.data.serverStats.servers)) {
           setState((prev) => ({
             data: prev.data,
             loading: false,
@@ -64,7 +64,7 @@ export function useServerStats(options: UseServerStatsOptions = {}) {
           return;
         }
 
-        setState({ data: json, loading: false, error: null });
+        setState({ data: json.data.serverStats, loading: false, error: null });
       } catch (err) {
         if (cancelled) return;
         setState((prev) => ({
@@ -114,8 +114,8 @@ export function useServerStats(options: UseServerStatsOptions = {}) {
       };
     };
 
-    const map = new Map<string, ServersStatsResponse['servidores'][number]>();
-    const list = state.data?.servidores || [];
+    const map = new Map<string, ServersStatsResponse['servers'][number]>();
+    const list = state.data?.servers || [];
     list.forEach((server) => {
       if (!server?.serverName) return;
       map.set(normalize(server.serverName), server);

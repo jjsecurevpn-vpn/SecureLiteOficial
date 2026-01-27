@@ -4,11 +4,12 @@
 
 .toast-wrap {
   position: fixed;
-  top: clamp(70px, calc(85px * var(--scale-factor)), 100px);
+  /* sit above navigation / safe area */
+  bottom: calc(16px + var(--nav-safe, 0px));
   left: 50%;
-  transform: translate(-50%);
-  max-width: clamp(280px, calc(320px * var(--scale-factor)), 380px);
-  width: 92%;
+  transform: translateX(-50%);
+  max-width: clamp(520px, calc(54vw * var(--scale-factor)), 760px);
+  width: min(92%, 760px);
   z-index: 80;
 }
 
@@ -22,8 +23,8 @@
   text-align: center;
   font-size: var(--font-base);
   opacity: 0;
-  transform: translateY(-16px);
-  margin-top: var(--space-xl);
+  transform: translateY(8px);
+  margin: 0;
   transition: opacity 0.3s, transform 0.3s;
 }
 

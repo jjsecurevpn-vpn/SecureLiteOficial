@@ -218,6 +218,12 @@
     max-height: var(--tv-logo-max-h);
   }
 
+  /* TV: ocultar search y botón de configuración en Servers para navegación remota */
+  .phone.is-servers .servers-content .search-field,
+  .phone.is-servers .servers-content .config-btn {
+    display: none;
+  }
+
   /* Card y spacing más compactos en TV */
   .phone.is-home .server-card {
     margin-top: var(--space-sm);
